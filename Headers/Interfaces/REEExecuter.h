@@ -8,7 +8,7 @@
 
 inline void PatchSymbolBaseAddress(void* Address);
 
-class REEExecuterObject : public REEExecuter
+class REEExecuterObject : public REEExecuter, public REEObject
 {
 	REEMemoryObject *executer;
 
@@ -16,10 +16,10 @@ public:
 	void Initalize() override;
 	void Release() override;
 
-	HREEMEMORY GetMemory();
-    void SetCallConv(REE_CALL_TYPE conv);
-    REE_EXECUTE_RESULT Execute(HREEMEMORY memory, REEArgsTable args);
-    REE_EXECUTE_RESULT Execute(HREESYMBOL symbol, REEArgsTable args);
+	HREEMEMORY GetMemory() override;
+    void SetCallConv(REE_CALL_TYPE conv) override;
+    REE_EXECUTE_RESULT Execute(HREEMEMORY memory, REEArgsTable args) override;
+    REE_EXECUTE_RESULT Execute(HREESYMBOL symbol, REEArgsTable args) override;
 };
 
 #endif

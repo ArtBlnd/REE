@@ -34,14 +34,12 @@ REEFactoryObject::REEFactoryObject(REE_PROCESS_INFO info)
 
 void REEFactoryObject::Initalize()
 {
-    globalMemory = new REEExecuterObject();
-
+    globalMemory = CreateMemory(4096);
     globalMemory->Initalize();
 }
 void REEFactoryObject::Distroy()
 {
     globalMemory->Distroy(symbolExecuter);
-    globalMemory->Distroy((symbolTable.memory));
     globalMemory->Release();
 
     delete globalMemory;
@@ -51,14 +49,14 @@ REESymbol* REEFactoryObject::CreateSymbol(const char* nameProc, const char* name
 {
     REE_SYMBOL_INFO info = CreateSymbolInfo(nameProc, nameModule);
 
-    return new REESymbolObject(info);
+    return (REESymbol*)(new REESymbolObject(info));
 }
 
 REESymbol* REEFactoryObject::CreateSymbol(void* addrProc) override
 {
     REE_SYMBOL_INFO info = CreateSymbolInfo(addrProc);
 
-    return new REESymbolObject(info);
+    return (REESymbol*)(new REESymbolObject(info));
 }
 
 REEMemory* REEFactoryObject::CreateMemory(const size_t szReserve) override
@@ -66,7 +64,7 @@ REEMemory* REEFactoryObject::CreateMemory(const size_t szReserve) override
     REEMemoryObject* memory = new REEMemoryObject(this);
     memory->Initalize();
 
-    return memory;
+    return (REEMemory*)memory;
 }
 
 REEExecuter* REEFactoryObject::CreateCustomExecuter(void* binary, size_t size) override

@@ -2,13 +2,14 @@
 #define _REE_FACTORY_
 
 #include "REE.h"
+#include "REEObject.h"
 #include "REEProcess.h"
 #include "REEMemory.h"
 #include "REESymbol.h"
 
 inline REEExecuterObject* GetGlobalAllocater();
 
-class REEFactoryObject : public REEFactory
+class REEFactoryObject : public REEFactory, public REEObject
 {
     REE_PROCESS_INFO infoProcess;
 

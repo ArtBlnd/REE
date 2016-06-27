@@ -78,18 +78,8 @@ REE_HANDLE_OBJECT(HREESYMBOL);
 
 /* INTERFACE DEFINETION */
 
-/* REEObject Interface => Base Of REE Interfaces. */
-INTERFACE REEObject
-{
-    /* Distroy Object */
-    void Distroy();
-    /* Initalize Object */
-    void Initalize();
-};
-#define REE_INTERFACE_OBJECT(classname, interfacename) INTERFACE classname : public interfacename
-
 /* REEMemory Interface => Manages Memory */ 
-REE_INTERFACE_OBJECT(REEMemory, REEObject)
+INTERFACE REEMemory
 {
     /* Allocate memory from targeted process. */
     void Allocate(HREEMEMORY* memory, size_t size);
@@ -106,7 +96,7 @@ REE_INTERFACE_OBJECT(REEMemory, REEObject)
     void* GetAddressOf(HREEMEMORY memory);
 };
 /* REEExecuter Interface => Executes Memory */
-REE_INTERFACE_OBJECT(REEExecuter, REEObject)
+INTERFACE REEExecuter
 {
     HREEMEMORY GetMemory();
     /* Get memory handle */
@@ -118,7 +108,7 @@ REE_INTERFACE_OBJECT(REEExecuter, REEObject)
     /* Execute with HREESYMBOL handle */
 };
 /* REESymbol Interface => Executes Symbol */
-REE_INTERFACE_OBJECT(REESymbol, REEObject)
+INTERFACE REESymbol
 {
     HREESYMBOL GetSymbol();
     /* Get symbol handle */
@@ -126,7 +116,7 @@ REE_INTERFACE_OBJECT(REESymbol, REEObject)
     /* Get symbol address. */
 };
 /* REEFactory Interface => Manages REE Objects */
-REE_INTERFACE_OBJECT(REEFactory, REEObject)
+INTERFACE REEFactory
 {
     REESymbol* CreateSymbol(const char* nameProc, const char* nameModule);
     /* Create symbol from factory with proc name, module name. */

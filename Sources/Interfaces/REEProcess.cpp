@@ -1,5 +1,19 @@
 #include "REEProcess.h"
 
+inline uint32_t REEGetCurrentPid()
+{
+#ifdef _WINDOWS
+	return GetCurrentProcessId();
+#endif
+}
+
+inline HANDLE REEGetCurrentProcess()
+{
+#ifdef _WINDOWS
+	return GetCurrentProcess();
+#endif
+}
+
 inline DWORD FindProcessId(const char *nameProcess)
 {
 	HANDLE hProcessSnap;
@@ -36,7 +50,10 @@ inline REE_PROCESS_INFO    OpenProcess(char* nameProcess)
     HANDLE           hProcess = NULL;
 
     idProcess = FindProcessId(nameProcess);
-    hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, ProcessId);
+	if(idProcess != REEGetCurrentPid) 
+		hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, ProcessId);
+	else
+		hProcess = REEGetCurrentProcess();
 
     DEBUG_ASSERT(!idProcess);
     DEBUG_ASSERT(!hProcess);

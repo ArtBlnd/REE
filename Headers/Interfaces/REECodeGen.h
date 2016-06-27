@@ -12,9 +12,12 @@ MAKE_OPCODE_STRUCT(OPCODE_4BYTES, 4);
 MAKE_OPCODE_STRUCT(OPCODE_5BYTES, 5);
 MAKE_OPCODE_STRUCT(OPCODE_6BYTES, 6);
 
-constexpr OPCODE_3BYTES GenSubEsp(uint32_t value);
-constexpr OPCODE_4BYTES GenMovEspOffset(uint32_t offset, uint32_t value);
-constexpr OPCODE_6BYTES GenAbsoluteJmp(uint32_t value);
+#define PREGEN constexpr
+
+namespace PREGEN_OPCODE
+{
+    
+};
 
 #undef MAKE_OPCODE_STRUCT
 
