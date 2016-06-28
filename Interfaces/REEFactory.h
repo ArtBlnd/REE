@@ -9,11 +9,6 @@
 #include "REESymbol.h"
 #include "REEMemory.h"
 
-
-class REEMemoryObject;
-
-inline REEMemoryObject* GetGlobalAllocater();
-
 class REEFactoryObject : public REEFactory, public REEObject
 {
     REE_PROCESS_INFO infoProcess;
@@ -24,7 +19,7 @@ public:
     void Initalize();
     void Distroy();
 
-    REESymbol* CreateSymbol(const char* nameProc, const char* nameModule);
+    REESymbol* CreateSymbol(char* nameProc, char* nameModule);
     REESymbol* CreateSymbol(void* addrProc);
     REEMemory* CreateMemory(const size_t szReserve);
     REEExecuter* CreateCustomExecuter(void* binary, size_t size);

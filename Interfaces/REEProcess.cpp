@@ -43,7 +43,7 @@ FAILED:
 	return result;
 }
 
-inline REE_PROCESS_INFO    GetInfoProcess(char* nameProcess)
+REE_PROCESS_INFO    GetInfoProcess(char* nameProcess)
 {
     REE_PROCESS_INFO info;
 
@@ -65,7 +65,7 @@ inline REE_PROCESS_INFO    GetInfoProcess(char* nameProcess)
 
     return info;
 }
-inline void                CloseProcess(REE_PROCESS_INFO info)
+void                CloseProcess(REE_PROCESS_INFO info)
 {
     if(info.hProcess) CloseHandle(info.hProcess);
     

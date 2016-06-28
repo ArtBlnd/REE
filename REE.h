@@ -82,7 +82,7 @@ REE_HANDLE_OBJECT(HREESYMBOL);
 INTERFACE REEMemory
 {
     /* Allocate memory from targeted process. */
-    void Allocate(HREEMEMORY* memory, size_t size);
+    void Allocate(HREEMEMORY* memory, size_t index, size_t size);
     /* Distroy memory from targeted process. */
     void Distroy(HREEMEMORY memory);
     /* Read memory from targeted process */
@@ -118,7 +118,7 @@ INTERFACE REESymbol
 /* REEFactory Interface => Manages REE Objects */
 INTERFACE REEFactory
 {
-    REESymbol* CreateSymbol(const char* nameProc, const char* nameModule);
+    REESymbol* CreateSymbol(char* nameProc, char* nameModule);
     /* Create symbol from factory with proc name, module name. */
     REESymbol* CreateSymbol(void* addrProc);
     /* Create symbol from factory wtih address of proc. */
@@ -129,6 +129,7 @@ INTERFACE REEFactory
     REEExecuter* CreateExecuter();
     /* Create executer from factory */
 };
+
 
 /* Initalize Remote Execution Engine(REE) Instance*/
 REE_DLL_DEF void        REEInitalize(char* nameProcess);

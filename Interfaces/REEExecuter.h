@@ -6,13 +6,25 @@
 #include "REEMemory.h"
 #include "REEProcess.h"
 
+/* Pre Define Class */
+class REEMemoryObject;
+
+NONE_PACKING const unsigned char DefaultExecuter[] = 
+{
+	0x90
+};
+
 class REEExecuterObject : public REEExecuter, public REEObject
 {
 	HREEMEMORY executer;
+	REEMemoryObject* allocater;
 
 public:
 	void Initalize();
 	void Distroy();
+
+	REEExecuterObject();
+	REEExecuterObject(void* binary, size_t size);
 
 	HREEMEMORY GetExecuterMemory();
     void SetCallConv(REE_CALL_TYPE conv);

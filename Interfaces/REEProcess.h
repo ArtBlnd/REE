@@ -13,7 +13,7 @@ struct REE_PROCESS_INFO
 inline uint32_t            REEGetCurrnetPid();
 inline HANDLE              REEGetCurrentProcess();
 
-inline REE_PROCESS_INFO    GetInfoProcess(char* nameProcess);
-inline void                CloseProcess(REE_PROCESS_INFO info);
+REE_PROCESS_INFO           GetInfoProcess(char* nameProcess);
+void                       CloseProcess(REE_PROCESS_INFO info);
 
 #endif

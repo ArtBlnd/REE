@@ -30,11 +30,6 @@ void* REEMemoryObject::GetReservedMemory()
     return (this->infoReserved->address);
 }
 
-void* GetAllocatableMemory(size_t size)
-{
-    return nullptr;
-}
-
 REEMemoryObject::REEMemoryObject(REEFactoryObject* parent, size_t size)
 {
     this->parent = parent;
@@ -65,14 +60,12 @@ void REEMemoryObject::Distroy()
     return;
 }
 
-void REEMemoryObject::Allocate(HREEMEMORY* memory, size_t size)
+void REEMemoryObject::Allocate(HREEMEMORY* memory, size_t index, size_t size)
 {
-    void* memoryAllocable = GetAllocatableMemory(size);
-    DEBUG_ASSERT(!memoryAllocable);
 
     void* memoryAddr = REEVirtualAllocEx(
         GetProcessHandle(), 
-        memoryAllocable, 
+        ADD_ADDRESS(infoReserved->address, index), 
         size, 
         DEFAULT_MEMORY_FLAG, 
         DEFAULT_PAGE_FLAG);
@@ -98,17 +91,25 @@ void REEMemoryObject::Distroy(HREEMEMORY memory)
 
 void REEMemoryObject::Read(HREEMEMORY memory, void* dest, size_t size)
 {
+    SIZE_T size_read;
 
+    ReadProcessMemory(GetProcessHandle(), GetMemoryInfo(memory)->address, dest, size, &size_read);
+
+    DEBUG_ASSERT(size_read != size);
 }
 
 void REEMemoryObject::Write(HREEMEMORY memory, void* source, size_t size)
 {
+    SIZE_T size_written;
 
+    WriteProcessMemory(GetProcessHandle(), GetMemoryInfo(memory)->address, source, size, &size_written);
+
+    DEBUG_ASSERT(size_written != size);
 }
 
 void* REEMemoryObject::GetAddressOf(HREEMEMORY memory)
 {
-    return nullptr;
+    return GetMemoryInfo(memory)->address;
 }
 
 size_t REEMemoryObject::GetSizeOf(HREEMEMORY memory)

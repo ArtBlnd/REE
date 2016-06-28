@@ -35,7 +35,7 @@ REE_DLL_DEF void REERelease()
     SetFactoryStats(false);
 }
 
-REE_DLL_DEF REEFactory* REECreateFactory(char* nameProcess)
+REE_DLL_DEF REEFactory* REEGetInstance()
 {
     return (REEFactory*)factory;
 }

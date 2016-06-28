@@ -28,4 +28,11 @@
 *.out
 *.app
 
-.vscode/*
+/.vscode/*.*
+
+*.pdb
+*.idb
+*.exp
+
+*.db
+*.json
