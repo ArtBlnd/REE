@@ -29,10 +29,4 @@
 *.app
 
 /.vscode/*.*
-
-*.pdb
-*.idb
-*.exp
-
-*.db
-*.json
+/Build/*.*
