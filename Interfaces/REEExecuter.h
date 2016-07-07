@@ -16,8 +16,7 @@ NONE_PACKING const unsigned char DefaultExecuter[] =
 
 class REEExecuterObject : public REEExecuter, public REEObject
 {
-	HREEMEMORY executer;
-	REEMemoryObject* allocater;
+	REEMemoryObject* executer;
 
 public:
 	void Initalize();
@@ -27,7 +26,6 @@ public:
 	REEExecuterObject(void* binary, size_t size);
 
 	HREEMEMORY GetExecuterMemory();
-    void SetCallConv(REE_CALL_TYPE conv);
     REE_EXECUTE_RESULT Execute(HREEMEMORY memory, REE_EXECUTE_ARGUMENT* args);
     REE_EXECUTE_RESULT Execute(HREESYMBOL symbol, REE_EXECUTE_ARGUMENT* args);
 };

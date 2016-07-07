@@ -6,10 +6,11 @@
 #include "REEObject.h"
 #include "REEFactory.h"
 
-#include "../Proxys/MemoryAPI.h"
-
-#define DEFAULT_MEMORY_FLAG MEM_COMMIT
-#define DEFAULT_PAGE_FLAG   PAGE_READWRITE
+#define DEFAULT_RESERVE_MEMORY_FLAG  MEM_RESERVE
+#define DEFAULT_RESERVE_PAGE_FLAG    PAGE_NOACESS
+#define DEFAULT_MEMORY_FLAG          MEM_COMMIT  | MEM_RESERVE
+#define DEFAULT_MEMORY_COMMIT_FLAG   MEM_COMMIT
+#define DEFAULT_PAGE_FLAG            PAGE_READWRITE
 
 #define ADD_ADDRESS(source, dest) ((void*)((size_t)(source) + (size_t)(dest)))
 
@@ -25,18 +26,24 @@ inline REE_MEMORY_INFO*  CreateMemoryInfo(void* pAddress, size_t size);
 inline REE_MEMORY_INFO*  GetMemoryInfo(HREEMEMORY memory);
 inline void              DistroyMemoryInfo(REE_MEMORY_INFO* memoryInfo);
 
-class REEMemoryObject : public REEMemory, public REEObject
+class REEMemoryReservedObject : public REEMemoryReserved, public REEObject
 {
     REEFactoryObject* parent;
 
     REE_MEMORY_INFO* infoReserved;
+    struct REE_MEMORY_INFO_LIST{
+        REE_MEMORY_INFO*      info;
+        REE_MEMORY_INFO_LIST* next;
+    }*first, *end;
+
+    void PushInfo(REE_MEMORY_INFO* info);
+    void DeleteInfo(REE_MEMORY_INFO* info);
 
     HANDLE GetProcessHandle();
     void*  GetReservedMemory();
-    void*  GetAllocatableMemory(size_t size);
 
 public:
-    REEMemoryObject(REEFactoryObject* parent, size_t size);
+    REEMemoryReservedObject(REEFactoryObject* parent, size_t size);
     void Initalize();
     void Distroy();
 
@@ -48,4 +55,20 @@ public:
     size_t GetSizeOf(HREEMEMORY memory);
 };
 
+class REEMemoryObject : public REEMemory, public REEObject
+{
+    REEFactoryObject* parent;
+
+    REE_MEMORY_INFO* infoMemory;
+public:
+    REEMemoryObject(REEFactoryObject* parent, size_t size);
+    void Initalize();
+    void Distroy();
+
+    void Read(void* dest, size_t size);
+    void Write(void* source, size_t size);
+    void* GetAddressOf();
+    size_t GetSizeOf();
+    HREEMEMORY GetHandle();
+}
 #endif

@@ -9,10 +9,12 @@ REEFactoryObject::REEFactoryObject(REE_PROCESS_INFO info)
 
 void REEFactoryObject::Initalize()
 {
+    return;
 }
 
 void REEFactoryObject::Distroy()
 {
+    return;
 }
 
 REESymbol* REEFactoryObject::CreateSymbol(char* nameProc, char* nameModule)
@@ -34,10 +36,17 @@ REESymbol* REEFactoryObject::CreateSymbol(void* addrProc)
 
     return (REESymbol*)(symbol);
 }
-
-REEMemory* REEFactoryObject::CreateMemory(const size_t szReserve)
+REEMemoryReserved* REEFactoryObject::CreateReservedMemory(const size_t szReserve)
 {
-    REEMemoryObject* memory = new REEMemoryObject(this, szReserve);
+    REEMemoryReservedObject* memory = new REEMemoryReservedObject(this, szReserve);
+
+    SAFE_INITALIZE(memory);
+
+    return (REEMemoryReserved*)(memory);
+}
+REEMemory* REEFactoryObject::CreateMemory(const size_t szMemory)
+{
+    REEMemoryObject* memory = new REEMemoryObject(this, szMemory);
 
     SAFE_INITALIZE(memory);
 
@@ -46,7 +55,7 @@ REEMemory* REEFactoryObject::CreateMemory(const size_t szReserve)
 
 REEExecuter* REEFactoryObject::CreateCustomExecuter(void* binary, size_t size)
 {
-    return new REEExecuterObject();
+    return new REEExecuterObject(binary, size);
 }
 REEExecuter* REEFactoryObject::CreateExecuter()
 {

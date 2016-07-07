@@ -49,12 +49,6 @@
 #endif
 #define INTERFACE __interface
 
-/* Current Supporting Calling Conversions */
-enum class REE_CALL_TYPE : uint32_t
-{
-    STDCALL_CONV = 1 << 0,
-    CDECL_CONV = 1 << 1
-};
 DEFAULT_PACKING_STRUCT REE_EXECUTE_RESULT
 {
     bool    isSuccessed;
@@ -78,8 +72,8 @@ REE_HANDLE_OBJECT(HREESYMBOL);
 
 /* INTERFACE DEFINETION */
 
-/* REEMemory Interface => Manages Memory */ 
-INTERFACE REEMemory
+/* REEMemory Interfaces => Manages Memory */ 
+INTERFACE REEMemoryReserved
 {
     /* Allocate memory from targeted process. */
     void Allocate(HREEMEMORY* memory, size_t index, size_t size);
@@ -95,13 +89,26 @@ INTERFACE REEMemory
     /* Get address of HREEMEMORY handle */
     void* GetAddressOf(HREEMEMORY memory);
 };
+
+INTERFACE REEMemory
+{
+    /* Read memory from targeted process */
+    void Read(void* dest, size_t size);
+    /* Write memory from targeted process */
+    void Write(void* source, size_t size);
+
+    /* Get size of */
+    size_t GetSizeOf();
+    /* Get address of */
+    void* GetAddressOf();
+    /* Get memory handle */
+    HREEMEMORY GetHandle();
+};
 /* REEExecuter Interface => Executes Memory */
 INTERFACE REEExecuter
 {
     HREEMEMORY GetExecuterMemory();
     /* Get memory handle */
-    void SetCallConv(REE_CALL_TYPE conv);
-    /* Set calling conversions for this Executer. */
     REE_EXECUTE_RESULT Execute(HREEMEMORY memory, REE_EXECUTE_ARGUMENT* args);
     /* Execute with HREEMEMORY handle. */
     REE_EXECUTE_RESULT Execute(HREESYMBOL symbol, REE_EXECUTE_ARGUMENT* args);
@@ -122,8 +129,10 @@ INTERFACE REEFactory
     /* Create symbol from factory with proc name, module name. */
     REESymbol* CreateSymbol(void* addrProc);
     /* Create symbol from factory wtih address of proc. */
-    REEMemory* CreateMemory(const size_t szReserve);
-    /* Create memory management object. */
+    REEMemoryReserved* CreateReservedMemory(const size_t szReserve);
+    /* Create reserved memory */
+    REEMemory* CreateMemory(const size_t szMemory);
+    /* Create memory */
     REEExecuter* CreateCustomExecuter(void* binary, size_t size);
     /* Create custom executer with custom execution binary. */
     REEExecuter* CreateExecuter();
