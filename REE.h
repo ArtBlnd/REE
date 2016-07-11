@@ -58,13 +58,16 @@ DEFAULT_PACKING_STRUCT REE_EXECUTE_RESULT
     /* Size Of Return Value */
     size_t  retSize;
 };
-DEFAULT_PACKING_STRUCT REE_EXECUTE_ARGUMENT
-{
-    /* Pointer Of Argument */
-    void*   argument;
-    /* Size Of Argument */
-    size_t  size;
-};
+DEFAULT_PACKING_STRUCT REE_EXECUTE_ARGUMENT{
+    DEFAULT_PACKING_STRUCT
+    {
+        /* Pointer Of Argument */
+        void*   argument;
+        /* Size Of Argument */
+        size_t  size;
+    } argument;
+    REE_EXECUTE_ARGUMENT* next;
+}
 
 #define REE_HANDLE_OBJECT(handlename) typedef class __##handlename## *handlename;
 REE_HANDLE_OBJECT(HREEMEMORY);
@@ -107,8 +110,6 @@ INTERFACE REEMemory
 /* REEExecuter Interface => Executes Memory */
 INTERFACE REEExecuter
 {
-    HREEMEMORY GetExecuterMemory();
-    /* Get memory handle */
     REE_EXECUTE_RESULT Execute(HREEMEMORY memory, REE_EXECUTE_ARGUMENT* args);
     /* Execute with HREEMEMORY handle. */
     REE_EXECUTE_RESULT Execute(HREESYMBOL symbol, REE_EXECUTE_ARGUMENT* args);

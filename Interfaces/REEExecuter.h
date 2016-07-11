@@ -6,6 +6,8 @@
 #include "REEMemory.h"
 #include "REEProcess.h"
 
+#define DEFAULT_RESULT_SIZE 8
+
 /* Pre Define Class */
 class REEMemoryObject;
 
@@ -16,7 +18,8 @@ NONE_PACKING const unsigned char DefaultExecuter[] =
 
 class REEExecuterObject : public REEExecuter, public REEObject
 {
-	REEMemoryObject* executer;
+	void*  objectExecuter;
+	size_t sizeExecuter;
 
 public:
 	void Initalize();
@@ -25,7 +28,6 @@ public:
 	REEExecuterObject();
 	REEExecuterObject(void* binary, size_t size);
 
-	HREEMEMORY GetExecuterMemory();
     REE_EXECUTE_RESULT Execute(HREEMEMORY memory, REE_EXECUTE_ARGUMENT* args);
     REE_EXECUTE_RESULT Execute(HREESYMBOL symbol, REE_EXECUTE_ARGUMENT* args);
 };

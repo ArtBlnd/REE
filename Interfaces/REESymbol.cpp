@@ -28,14 +28,10 @@ REESymbolObject::REESymbolObject(REE_SYMBOL_INFO* info)
 }
 
 void REESymbolObject::Initalize()
-{
-
-}
+{ }
 
 void REESymbolObject::Distroy()
-{
-
-}
+{ }
 
 HREESYMBOL  REESymbolObject::GetSymbol()
 {

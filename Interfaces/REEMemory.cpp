@@ -40,6 +40,7 @@ REEMemoryReservedObject::REEMemoryReservedObject(REEFactoryObject* parent, size_
         size,
         DEFAULT_RESERVE_MEMORY_FLAG,
         DEFAULT_RESERVE_PAGE_FLAG);
+    DEBUG_ASSERT(!preAllocMem);
 
     infoReserved = CreateMemoryInfo(preAllocMem, size);
 }
@@ -77,12 +78,11 @@ void REEMemoryReservedObject::Distroy(HREEMEMORY memory)
 {
     REE_MEMORY_INFO* info = GetMemoryInfo(memory);
 
-    VirtualFreeEx(
+    DEBUG_ASSERT(!VirtualFreeEx(
         GetProcessHandle(),
         info->address,
         info->size,
-        MEM_DECOMMIT
-        );
+        MEM_DECOMMIT));
 
     DistroyMemoryInfo(info);
 }
@@ -125,6 +125,7 @@ REEMemoryObject::REEMemoryObject(REEFactoryObject* parent, size_t size)
         size,
         DEFAULT_MEMORY_FLAG,
         DEFAULT_PAGE_FLAG);
+    DEBUG_ASSERT(!AllocMem);
 
     this->infoMemory = CreateMemoryInfo(AllocMem, size);
 }
@@ -134,7 +135,7 @@ void REEMemoryObject::Initalize()
 
 void REEMemoryObject::Distroy()
 {
-    VirtualFreeEx(GetProcessHandle())
+    DEBUG_ASSERT(!VirtualFreeEx(GetProcessHandle()));
 }
 
 void REEMemoryObject::Read(void* dest, size_t size)
@@ -157,12 +158,12 @@ void REEMemoryObject::Write(void* source, size_t size)
 
 void* REEMemoryObject::GetAddressOf()
 {
-    return GetMemoryInfo(infoMemory)->address;
+    return infoMemory->address;
 }
 
 size_t GetSizeOf()
 {
-    return GetMemoryInfo(infoMemory)->size;
+    return infoMemory->size;
 }
 
 HREEMEMORY REEMemoryObject::GetHandle()
