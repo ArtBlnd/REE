@@ -15,8 +15,8 @@
 
 enum class MOD_REG32 : uint8_t
 {
-    REFERENCED_DATA = 0
-    REFERENCED_WITH_DISP8 = 1
+    REFERENCED_DATA = 0,
+    REFERENCED_WITH_DISP8 = 1,
     REFERENCED_WITH_DISP32 = 2,
     NONE_REFERENCED_DATA = 3
 };
@@ -32,5 +32,44 @@ enum class RM_REG32 : uint8_t
     ESI = 6, SI = 6, DH = 6, MM6 = 6, XMM6 = 6
     EDI = 7, DI = 7, BH = 7, MM7 = 7, XMM7 = 7
 };
+
+struct Opcode
+{
+    uint8_t* code;
+    uint32_t size;
+};
+
+namespace Instructions
+{
+
+    /* ======================================= EXAMPLES ======================================= */
+    /* Instructions::ADD(RM_REG32::EAX, MOD_REG32::NONE_REFERENCED_DATA, 10);                   */
+    /* Assembly Gen ==>> add eax, 10                                                            */
+    /* Instructions::SUB(RM_REG32::EBX, MOD_REG32::NONE_REFERENCED_DATA, RM_REG32::EAX);        */
+    /* Assembly Gen ==>> sub ebx, eax                                                           */
+    /* Instructions::MOV(RM_REG32::ECX, RM_REG32::ESP, 8);                                      */
+    /* Assembly Gen ==>> mov ecx, [esp + 8]                                                     */
+    /* ======================================================================================== */
+
+    /* ADD reg(with mod), imm32 */
+    Opcode* ADD(RM_REG32 reg, MOD_REG32 mod, uint32_t imm32);
+    /* ADD reg_1(with mod), reg_2 */
+    Opcode* ADD(RM_REG32 reg_1, MOD_REG32 mod, RM_REG32 reg_2);
+
+    /* SUB reg(with mod), imm32 */
+    Opcode* SUB(RM_REG32 reg, MOD_REG32 mod, uint32_t imm32);
+    /* SUB reg_1(with mod), reg2 */
+    Opcode* SUB(RM_REG32 reg_1, MOD_REG32 mod, RM_REG32 reg2);
+
+    /* MOV reg(with mod), imm32 */
+    Opcode* MOV(RM_REG32 reg, MOD_REG32 mod, uint32_t imm32);
+    /* MOV reg_1(with mod), reg_2 */
+    Opcode* MOV(RM_REG32 reg_1, MOD_REG32 mod_1, RM_REG32 reg_2);
+    /* MOV reg_1, [reg_2 + imm32]*/
+    Opcode* Mov(RM_REG32 reg_1, RM_REG32 reg_2, int32_t imm32);
+
+    /* LEA reg_1, [reg_2 + imm32] */
+    Opcode* LEA(RM_REG32 reg_1, RM_REG32 reg_2, int32_t imm32);
+}
 
 #endif
