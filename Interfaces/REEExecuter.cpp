@@ -45,16 +45,18 @@ REE_EXECUTE_RESULT REEExecuterObject::Execute(HREEMEMORY memory, REE_EXECUTE_ARG
     REEMemory*   MemExecuter = instance->CreateMemory(TotalArgumentsSize + TotalExecuterSize);
     REEMemory*   MemResult = instance->CreateMemory(DEFAULT_RESULT_SIZE);
 
-    for(REE_EXECUTE_ARGUMENT* iterator = args; args->next == nullptr; args = args->next)
+    try
     {
-        memcpy_s(
-            ADD_ADDRESS(tmpMemory, tmpTotalWrittenSize), 
-            args->size, 
-            args->argument, 
-            args->size);
+        for(REE_EXECUTE_ARGUMENT* iterator = args; args->next == nullptr; args = args->next)
+        {
+            memcpy_s(
+                ADD_ADDRESS(tmpMemory, tmpTotalWrittenSize), 
+                args->size, 
+                args->argument, 
+                args->size);
 
-        tmpTotalWrittenSize += args->size;
-    }
+            tmpTotalWrittenSize += args->size;
+        }
 
     DEBUG_ASSERT(!objectExecuter);
 
@@ -63,6 +65,11 @@ REE_EXECUTE_RESULT REEExecuterObject::Execute(HREEMEMORY memory, REE_EXECUTE_ARG
         TotalExecuterSize,
         objectExecuter,
         TotalExecuterSize);
+    }
+    catch(...)
+    {
+        
+    }
 
     Executer->Write(tmpMemory, TotalArgumentsSize + TotalExecuterSize);
     Executer->GetAddressOf();

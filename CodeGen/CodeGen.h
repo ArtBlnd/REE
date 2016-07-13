@@ -23,6 +23,7 @@ enum class MOD_REG32 : uint8_t
 
 enum class RM_REG32 : uint8_t
 {
+    /* Not supporting any other registers... just for now.*/
     EAX = 0, AX = 0, AL = 0, MM0 = 0, XMM0 = 0,
     ECX = 1, CX = 1, CL = 1, MM = 1 , XMM1 = 1,
     EDX = 2, DX = 2, DL = 2, MM2 = 2, XMM2 = 2,
@@ -43,33 +44,33 @@ namespace Instructions
 {
 
     /* ======================================= EXAMPLES ======================================= */
-    /* Instructions::ADD(RM_REG32::EAX, MOD_REG32::NONE_REFERENCED_DATA, 10);                   */
-    /* Assembly Gen ==>> add eax, 10                                                            */
-    /* Instructions::SUB(RM_REG32::EBX, MOD_REG32::NONE_REFERENCED_DATA, RM_REG32::EAX);        */
-    /* Assembly Gen ==>> sub ebx, eax                                                           */
+    /* Instructions::ADD(RM_REG32::EAX, 0, MOD_REG32::NONE_REFERENCED_DATA, 100);               */
+    /* Assembly Gen ==>> add eax, 100                                                           */
+    /* Instructions::SUB(RM_REG32::EBX, 4, MOD_REG32::REFERENCED_WITH_DISP8, RM_REG32::EAX);    */
+    /* Assembly Gen ==>> sub [ebx + 4], eax                                                     */
     /* Instructions::MOV(RM_REG32::ECX, RM_REG32::ESP, 8);                                      */
     /* Assembly Gen ==>> mov ecx, [esp + 8]                                                     */
     /* ======================================================================================== */
 
     /* ADD reg(with mod), imm32 */
-    Opcode* ADD(RM_REG32 reg, MOD_REG32 mod, uint32_t imm32);
+    Opcode* ADD(RM_REG32 reg, int32_t disp32, MOD_REG32 mod, uint32_t imm32);
     /* ADD reg_1(with mod), reg_2 */
-    Opcode* ADD(RM_REG32 reg_1, MOD_REG32 mod, RM_REG32 reg_2);
+    Opcode* ADD(RM_REG32 reg_1, int32_t disp32, MOD_REG32 mod, RM_REG32 reg_2);
+    /* ADD reg_1, reg_2(with mod) */
+    Opcode* ADD(RM_REG32 reg_1, RM_REG32 reg_2, uint_t disp32, RM_REG32 mod);
 
     /* SUB reg(with mod), imm32 */
-    Opcode* SUB(RM_REG32 reg, MOD_REG32 mod, uint32_t imm32);
+    Opcode* SUB(RM_REG32 reg, int32_t disp32, MOD_REG32 mod, uint32_t imm32);
     /* SUB reg_1(with mod), reg2 */
-    Opcode* SUB(RM_REG32 reg_1, MOD_REG32 mod, RM_REG32 reg2);
+    Opcode* SUB(RM_REG32 reg_1, int32_t disp32, MOD_REG32 mod, RM_REG32 reg_2);
 
     /* MOV reg(with mod), imm32 */
-    Opcode* MOV(RM_REG32 reg, MOD_REG32 mod, uint32_t imm32);
+    Opcode* MOV(RM_REG32 reg, int32_t disp32, MOD_REG32 mod, uint32_t imm32);
     /* MOV reg_1(with mod), reg_2 */
-    Opcode* MOV(RM_REG32 reg_1, MOD_REG32 mod_1, RM_REG32 reg_2);
-    /* MOV reg_1, [reg_2 + imm32]*/
-    Opcode* Mov(RM_REG32 reg_1, RM_REG32 reg_2, int32_t imm32);
+    Opcode* MOV(RM_REG32 reg_1, int32_t disp32, MOD_REG32 mod, RM_REG32 reg_2);
 
-    /* LEA reg_1, [reg_2 + imm32] */
-    Opcode* LEA(RM_REG32 reg_1, RM_REG32 reg_2, int32_t imm32);
+    /* LEA reg_1, [reg_2 + disp32] */
+    Opcode* LEA(RM_REG32 reg_1, RM_REG32 reg_2, int32_t disp32);
 }
 
 #endif
