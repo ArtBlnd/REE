@@ -1,9 +1,10 @@
 #include "CodeGen.h"
 
-
 /* NOTE : Needs code optimize. */
 
-#define SHIFT(value, s_val) value = value << s_val;
+#define SHIFT_LOGICAL_OR(value, s_val, or_val) \ 
+    value = value << s_val; \
+    value |= or_val; 
 
 inline void MakeOpcode(Opcode** opcode, uint32_t size)
 {
@@ -14,6 +15,7 @@ inline void MakeOpcode(Opcode** opcode, uint32_t size)
 
     *opcode = d_opcode;
 }
+
 inline void DeleteOpcode(Opcode** opcode)
 {
     Opcode* d_opcode = *opcode;
@@ -32,9 +34,9 @@ inline uint8_t ModRmByteGen(RM_REG32 reg, uint8_t sbyte, MOD_REG32 mod)
     /* | M | M | B | B | B | R | R | R | */
     /* ================================= */
 
-    result = (uint8_t)mod;  SHIFT(result, 3);
-    result |= sbyte;        SHIFT(result, 3);
-    result |= (uint8_t)reg;
+    result = (uint8_t)mod; 
+    SHIFT_LOGICAL_OR(result, (uint8_t)sbyte, 3);
+    SHIFT_LOGICAL_OR(result, (uint8_t)reg,   3);
 
     return result;
 }
@@ -44,9 +46,9 @@ inline uint8_t ModRmByteGen(RM_REG32 reg_1, RM_REG32 reg_2, MOD_REG32 mod)
     return ModRmByteGen(reg_1, (uint8_t) reg_2, mod);
 }
 
-constexpr uint32_t MaxSizeGen(uint8_t typesize)
+constexpr uint32_t MaxSizeGen(const uint8_t typesize)
 {
-    int32_t result = (1 << (typesize)) - 1;
+    uint64_t result = (1 << (typesize)) - 1;
 
     return (uint32_t)result;
 }
@@ -138,6 +140,7 @@ Opcode* Instructions::ADD(RM_REG32 reg_1, uint32_t disp32, MOD_REG32 mod, RM_REG
 
     return opcode;
 }
+
 Opcode* Instructions::ADD(RM_REG32 reg_1, RM_REG32 reg_2, uint_t disp32, RM_REG32 mod)
 {
     uint8_t  bOpcode         = 0x01;
@@ -228,18 +231,210 @@ Opcode* Instructions::SUB(RM_REG32 reg, int32_t disp32, MOD_REG32 mod, uint32_t 
 
 Opcode* Instructions::SUB(RM_REG32 reg_1, int32_t disp32, MOD_REG32 mod, RM_REG32 reg_2)
 {
+    uint8_t  bOpcode         = 0x29;
+    uint8_t  bModRm          = ModRmByteGen(reg_1, reg_2, mod);
 
+    uint8_t  szOperand_DISP  = NULL;
+    bool     isRefed         = false;
+
+    if(disp32 != 0)
+    {
+        isRefed = true;
+
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP8) szOperand_DISP = sizeof(uint8_t);
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP32) szOperand_DISP = sizeof(uint32_t);
+    }
+
+    Opcode *opcode;
+
+    MakeOpcode(&opcode, szOperand_DISP + 2);
+ 
+    try
+    {
+        memcpy(&(opcode->code[0]), &bOpcode, sizeof(uint8_t));
+        memcpy(&(opcode->code[1]), &bModRm, sizeof(uint8_t));
+        if(isRefed || !disp32) memcpy(&(opcode->code[2]), &disp32, szOperand_DISP);
+    }
+    catch(...)
+    {
+        DeleteOpcode(&opcode);
+    }
+
+    return opcode;
 }
 
 Opcode* Instructions::MOV(RM_REG32 reg, int32_t disp32, MOD_REG32 mod, uint32_t imm32)
 {
+    uint8_t  bOpcode;
+    uint8_t  bModRm           = ModRmByteGen(reg, 0, mod);
+    /* Opcode ==>> "0xC6 /0 ib", "0xC7 /0 iw" and "0xC7 /0 id" */
 
+    uint8_t  szOperand_IMM    = NULL;
+    uint8_t  szOperand_DISP   = NULL;
+    bool     isRefed          = false;
+
+    if(disp32 != 0)
+    {
+        isRefed = true;
+
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP8) szOperand_DISP = sizeof(uint8_t);
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP32) zzOperand_DISP = sizeof(uint32_t);
+    }
+
+    if(imm32 < MaxSizeGen(sizeof(uint8_t)))
+    {
+        bOpcode = 0xC6;
+        szOperand_IMM = sizeof(uint8_t);
+    }
+    else
+    {
+        bOpcode = 0xC7;
+
+        if(imm32 < MaxSizeGen(sizeof(uint16_t))) szOperand_IMM = sizeof(uint16_t);
+        else szOperand_IMM = sizeof(uint32_t);
+    }
+
+    Opcode *opcode;
+
+    MakeOpcode(&opcode, szOperand_DISP + szOperand_IMM + 2);
+
+    try
+    {
+        memcpy(&(opcode->code[0]), &bOpcode, sizeof(uint8_t));
+        memcpy(&(opcode->code[1]), &bModRm, sizeof(uint8_t));
+        if(isRefed)
+        {
+            memcpy(&(opcode->code[2]), &disp32, szOperand_DISP);
+            memcpy(&(opcode->code[szOperand_DISP + 2]), &imm32, szOperand_IMM);
+        }
+        else memcpy(&(opcode->code[2]), &imm32, szOperand_IMM);
+    }
+    catch(...)
+    {
+        DeleteOpcode(&opcode);
+    }
+
+    return opcode;
 }
+
 Opcode* Instructions::MOV(RM_REG32 reg_1, int32_t disp32, MOD_REG32 mod, RM_REG32 reg_2)
 {
+    uint8_t  bOpcode         = 0x89;
+    uint8_t  bModRm          = ModRmByteGen(reg_1, reg_2, mod);
 
+    uint8_t  szOperand_DISP  = NULL;
+    bool     isRefed         = false;
+
+    if(disp32 != 0)
+    {
+        isRefed = true;
+
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP8) szOperand_DISP = sizeof(uint8_t);
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP32) szOperand_DISP = sizeof(uint32_t);
+    }
+
+    Opcode *opcode;
+
+    MakeOpcode(&opcode, szOperand_DISP + 2);
+ 
+    try
+    {
+        memcpy(&(opcode->code[0]), &bOpcode, sizeof(uint8_t));
+        memcpy(&(opcode->code[1]), &bModRm, sizeof(uint8_t));
+        if(isRefed || !disp32) memcpy(&(opcode->code[2]), &disp32, szOperand_DISP);
+    }
+    catch(...)
+    {
+        DeleteOpcode(&opcode);
+    }
+
+    return opcode;
 }
+
+Opcode* Instructions::MOV(RM_REG32 reg_1, RM_REG32 reg_2, int32_t disp32, MOD_REG32 mod)
+{
+    uint8_t  bOpcode         = 0x8B;
+    uint8_t  bModRm          = ModRmByteGen(reg_1, reg_2, mod);
+
+    uint8_t  szOperand_DISP  = NULL;
+    bool     isRefed         = false;
+
+    if(disp32 != 0)
+    {
+        isRefed = true;
+
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP8) szOperand_DISP = sizeof(uint8_t);
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP32) szOperand_DISP = sizeof(uint32_t);
+    }
+
+    Opcode *opcode;
+
+    MakeOpcode(&opcode, szOperand_DISP + 2);
+ 
+    try
+    {
+        memcpy(&(opcode->code[0]), &bOpcode, sizeof(uint8_t));
+        memcpy(&(opcode->code[1]), &bModRm, sizeof(uint8_t));
+        if(isRefed || !disp32) memcpy(&(opcode->code[2]), &disp32, szOperand_DISP);
+    }
+    catch(...)
+    {
+        DeleteOpcode(&opcode);
+    }
+
+    return opcode;
+}
+
 Opcode* Instructions::LEA(RM_REG32 reg_1, RM_REG32 reg_2, int32_t disp32)
 {
-    
+    uint8_t  bOpcode         = 0x8D;
+    uint8_t  bModRm          = ModRmByteGen(reg_1, reg_2, MOD_REG32::REFERENCED_DATA);
+
+    uint8_t  szOperand_DISP  = NULL;
+    bool     isRefed         = false;
+
+    if(disp32 != 0)
+    {
+        isRefed = true;
+
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP8) szOperand_DISP = sizeof(uint8_t);
+        if(mod == MOD_REG32::REFERENCED_WITH_DISP32) szOperand_DISP = sizeof(uint32_t);
+    }
+
+    Opcode *opcode;
+
+    MakeOpcode(&opcode, szOperand_DISP + 2);
+ 
+    try
+    {
+        memcpy(&(opcode->code[0]), &bOpcode, sizeof(uint8_t));
+        memcpy(&(opcode->code[1]), &bModRm, sizeof(uint8_t));
+        if(isRefed || !disp32) memcpy(&(opcode->code[2]), &disp32, szOperand_DISP);
+    }
+    catch(...)
+    {
+        DeleteOpcode(&opcode);
+    }
+
+    return opcode;
+}
+
+Opcode* Instructions::CALL(RM_REG32 reg, int32_t disp32, MOD_REG32 mod)
+{
+
+}
+
+Opcode* Instructions::CALL(uint32_t imm32)
+{
+
+}
+
+Opcode* Instructions::RET(uint32_t imm32)
+{
+
+}
+
+Opcode* Instructions::RETN()
+{
+
 }

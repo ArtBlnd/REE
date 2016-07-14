@@ -17,6 +17,10 @@ REE_SYMBOL_INFO* CreateSymbolInfo(void* address)
 
     return info;
 }
+REE_SYMBOL_INFO* GetSymbolInfo(HREESYMBOL symbol)
+{
+    return (REE_SYMBOL_INFO*)symbol;
+}
 inline void             DistroySymbolInfo(REE_SYMBOL_INFO* info)
 {
     delete info;

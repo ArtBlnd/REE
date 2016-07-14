@@ -51,8 +51,6 @@
 
 DEFAULT_PACKING_STRUCT REE_EXECUTE_RESULT
 {
-    bool    isSuccessed;
-
     /* Pointer Of Return Value */
     void*   retValue;
     /* Size Of Return Value */

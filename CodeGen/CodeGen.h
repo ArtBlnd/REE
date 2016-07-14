@@ -8,9 +8,9 @@
 /* "IA32 Architectures Manual(from Intel)" first to understand this  */ 
 /* easier.                                                           */
 
-/* Referenced data means accessing as pointer. "(*eax)" on C/C++.    */
+/* Referenced data mean accessing as pointer. "(*eax)" on C/C++.     */
 /* Referenced with DISP mean "(*(eax + (DISP value)))"" on C/C++.    */
-/* None referenced data means raw data, just "eax".                  */
+/* None referenced data mean raw data, just "eax".                   */
 /* See "IA Architextures Manual 2-6 Vol.2A" for more informations.   */
 
 enum class MOD_REG32 : uint8_t
@@ -23,7 +23,7 @@ enum class MOD_REG32 : uint8_t
 
 enum class RM_REG32 : uint8_t
 {
-    /* Not supporting any other registers... just for now.*/
+    /* Only supporting extended 32bit registers.. just for now.*/
     EAX = 0, AX = 0, AL = 0, MM0 = 0, XMM0 = 0,
     ECX = 1, CX = 1, CL = 1, MM = 1 , XMM1 = 1,
     EDX = 2, DX = 2, DL = 2, MM2 = 2, XMM2 = 2,
@@ -68,9 +68,19 @@ namespace Instructions
     Opcode* MOV(RM_REG32 reg, int32_t disp32, MOD_REG32 mod, uint32_t imm32);
     /* MOV reg_1(with mod), reg_2 */
     Opcode* MOV(RM_REG32 reg_1, int32_t disp32, MOD_REG32 mod, RM_REG32 reg_2);
+    /* MOV [imm32], reg(with mod) */
+    Opcode* MOV(int32_t imm32, RM_REG32 reg, int32_t disp32, MOD_REG32 mod);
 
     /* LEA reg_1, [reg_2 + disp32] */
     Opcode* LEA(RM_REG32 reg_1, RM_REG32 reg_2, int32_t disp32);
-}
+    /* CALL reg(with mod) */
+    Opcode* CALL(RM_REG32 reg, int32_t disp32, MOD_REG32 mod);
+    /* CALL imm32 */
+    Opcode* CALL(uint32_t imm32);
+    /* RET imm32 */
+    Opcode* RET(uint32_t imm32);
+    /* RETN */
+    Opcode* RETN();
+};
 
 #endif
