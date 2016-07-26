@@ -52,7 +52,7 @@ REE_EXECUTE_RESULT REEExecuterObject::Execute(REEMemory* memory, REE_EXECUTE_ARG
     CodeList     opcodes;
 
     opcodes.Initalize();
-    opcodes.PushCode(Instructions::SUB(
+    opcodes.PushCode(InstHelper::SUB(
         RM_REG32::ESP, 
         0, 
         MOD_REG32::NONE_REFERENCED_DATA, 
@@ -68,13 +68,14 @@ REE_EXECUTE_RESULT REEExecuterObject::Execute(REEMemory* memory, REE_EXECUTE_ARG
         for(REE_EXECUTE_ARGUMENT* iterator = args; args->next == nullptr; args = args->next)
         {
             opcode.PushCode(
-                Instructions::MOV(
+                InstHelper::MOV(
                     RM_REG32::ESP, 
                     args->argument.size + TotalWritten, 
                     MOD_REG32::REFERENCED_WITH_DISP32, 
                     args->argument.argument)
             );
             /* mov [esp + args->argument.size + TotalWritten], args->argument.argument */
+            /* create instructions manually. */
 
             TotalWritten += args->argument.size;
         }
@@ -82,11 +83,11 @@ REE_EXECUTE_RESULT REEExecuterObject::Execute(REEMemory* memory, REE_EXECUTE_ARG
         DEBUG_ASSERT(!objectExecuter);
 
         opcode.PushCode(
-            Instructions::CALL()
+            InstHelper::CALL()
         );
         /* call memory->GetAddressOf() */
         opcode.PushCode(
-            Instructions::MOV(
+            InstHelper::MOV(
                 RM_REG32::ECX,
                 0,
                 MOD_REG32::NONE_REFERENCED_DATA,
@@ -94,7 +95,7 @@ REE_EXECUTE_RESULT REEExecuterObject::Execute(REEMemory* memory, REE_EXECUTE_ARG
         );
         /* mov ecx, MemResult->GetAddressOf() */
         opcode.PushCode(
-            Instructions::MOV(
+            InstHelper::MOV(
                 RM_REG32::ECX,
                 0,
                 MOD_REG32::REFERENCED_DATA,
@@ -102,20 +103,23 @@ REE_EXECUTE_RESULT REEExecuterObject::Execute(REEMemory* memory, REE_EXECUTE_ARG
         );
         /* mov [ecx], eax */
         opcode.PushCode(
-            Instructions::RET(4)
+            InstHelper::RET(4)
         );
+        /* you have to restore esp becouse CreateRemoteThread function use LPVOID argument. */ 
         /* RET 4 */
     }
     catch(...)
     {
-        
+        /* TODO HERE: exception handler */
     }
 
     uint8_t byteCodes = new uint8_t[opcodes.getTotalSize()];
 
     opcodes.CopyToMemory(byteCodes);
     Executer->Write(byteCodes, opcodes.getTotalSize());
-    Executer->GetAddressOf();
+    
+    /* TODO HERE: Execute "Executer" memory with CreateRemoteThread. */
+    /* Also WaitForSingleObject. */
 
     REE_EXECUTE_RESULT result;
 
@@ -128,6 +132,7 @@ REE_EXECUTE_RESULT REEExecuterObject::Execute(REEMemory* memory, REE_EXECUTE_ARG
     Executer->Distroy();
     Result->Distroy();
 
+    /* doesn't seems really good that way return Executer result.*/
     return result;
 }
 

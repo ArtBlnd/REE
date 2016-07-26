@@ -40,15 +40,16 @@ struct Opcode
     uint32_t size;
 };
 
-namespace Instructions
+/* I don't really recommend these functions.. I don't like it. needs refactoring. */
+namespace InstHelper
 {
 
     /* ======================================= EXAMPLES ======================================= */
-    /* Instructions::ADD(RM_REG32::EAX, 0, MOD_REG32::NONE_REFERENCED_DATA, 100);               */
+    /* InstHelper::ADD(RM_REG32::EAX, 0, MOD_REG32::NONE_REFERENCED_DATA, 100);                 */
     /* Assembly Gen ==>> add eax, 100                                                           */
-    /* Instructions::SUB(RM_REG32::EBX, 4, MOD_REG32::REFERENCED_WITH_DISP8, RM_REG32::EAX);    */
+    /* InstHelper::SUB(RM_REG32::EBX, 4, MOD_REG32::REFERENCED_WITH_DISP8, RM_REG32::EAX);      */
     /* Assembly Gen ==>> sub [ebx + 4], eax                                                     */
-    /* Instructions::MOV(RM_REG32::ECX, RM_REG32::ESP, 8);                                      */
+    /* InstHelper::MOV(RM_REG32::ECX, RM_REG32::ESP, 8);                                        */
     /* Assembly Gen ==>> mov ecx, [esp + 8]                                                     */
     /* ======================================================================================== */
 
@@ -82,5 +83,13 @@ namespace Instructions
     /* RETN */
     Opcode* RETN();
 };
+
+/* NOTE: You can manually make opcode with these functions if you want. */
+
+uint8_t ModRmByteGen(RM_REG32 reg, uint8_t sbyte, MOD_REG32 mod);
+uint8_t ModRmByteGen(RM_REG32 reg_1, RM_REG32 reg_2, MOD_REG32 mod);
+
+Opcode* SingleOpcodeGen(uint8_t bOpcode, RM_REG32 reg_1, RM_REG32 reg_2, uint_t disp32, RM_REG32 mod);
+Opcode* DoubleOpcodeGen(uint8_t bOpcode_8bit, uint8_t bOpcode_32bit, RM_REG32 reg_1, RM_REG32 reg_2, uint32_t disp32, MOD_REG32 mod, uint32_t imm32);
 
 #endif
